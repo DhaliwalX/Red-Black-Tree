@@ -13,7 +13,7 @@ This repository contains implementation of [Red-Black Tree](https://en.wikipedia
       > `tree-name.insert(key, data)`
     
 - **Deletion**:
-    Deletion is same as descirbed in CLRS except that 
+    Deletion algorithm is same as descirbed in CLRS except that 
       - A node nil[T] may be made during deletion. This is required for proper deletion
       - Instead of copying the data from the node, node is relinked to proper position
       - To delete an element with a key (key), use this method: 
