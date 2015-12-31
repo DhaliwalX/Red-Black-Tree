@@ -2,7 +2,6 @@
 #define RBTREE_H_
 
 #include <string>
-#include <iostream>
 #include <utility>
 
 #define THROW(str) std::string(str)
