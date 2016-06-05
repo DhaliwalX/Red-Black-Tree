@@ -5,12 +5,12 @@ This repository contains implementation of [Red-Black Tree](https://en.wikipedia
 ## Operations
 - **Making a tree object**:
     To make a tree:
-      > ```RBTree<KeyType, DataType> tree-name;```
+ ```RBTree<KeyType, DataType> tree-name;```
 
 - **Insertion**:
     Insertion follows the algorithm which is same as described in CLRS
     To insert an element with a key use following methods,
-      > `tree-name.insert(key, data)`
+`tree-name.insert(key, data)`
     
 - **Deletion**:
     Deletion algorithm is same as descirbed in CLRS except that 
