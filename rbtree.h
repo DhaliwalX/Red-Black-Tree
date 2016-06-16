@@ -142,7 +142,7 @@ public:
     pointer parent = nullptr;
     if (IsNil(ptr_))
     { // if ptr_ is end()
-      
+ 
     }
     else if (!IsNil(Left(ptr_))) 
     { // set ptr to left-subtree of ptr
@@ -462,6 +462,13 @@ public:
     return iterator(node);
   }  
 
+  iterator insert(const std::pair<KeyType, DataType> &p)
+  {
+    pointer node = new RBNode<KeyType, DataType>(p.first, p.second);
+    root_ = _Insert(root_, node);
+    return iterator(node);
+  }
+
   void insert_or_assign(const KeyType &key, const DataType &data)
   { // inserts if key doesn't exists, otherwise assigns data to the key
     pointer exists = _Search(root_, key);
@@ -472,10 +479,11 @@ public:
     }
   }
 
-  void insert(iterator & it, const KeyType &key)
-  { // unimplemented
-
-  }
+  // void insert(iterator & it, const KeyType &key)
+  //{ // unimplemented
+  // since insertion at arbitrary place in red black tree is not
+  // possible. Think of inserting 5 at position 1 in { 1, 2, 3, 4 }
+  // }
   
   void erase(const KeyType &key)
   {
@@ -639,8 +647,6 @@ private:
     // and join to the right child of node
     node->right_ = Left(pivotEnd);
 
-    // although not given in CLRS,
-    // but it is required
     if (pivotEnd->left_ != nullptr)
       pivotEnd->left_->parent_ = node;
 
@@ -681,14 +687,17 @@ private:
   { // right symmetry of LeftRotate
     pointer pivotEnd = Left(node);
     node->left_ = Right(pivotEnd);
+    
     if (pivotEnd->right_ != nullptr)
       pivotEnd->right_->parent_ = node;
     pivotEnd->parent_ = Parent(node);
+
     if (Parent(node) == nullptr)
       root = pivotEnd;
     else if (node == Left(Parent(node)))
       node->parent_->left_ = pivotEnd;
     else node->parent_->right_ = pivotEnd;
+
     pivotEnd->right_ = node;
     node->parent_ = pivotEnd;
     return pivotEnd;
@@ -725,7 +734,7 @@ private:
     while (_Color(Parent(node)) == RED) {
       if (Parent(node) == Left(Parent(Parent(node)))) {
         uncle = Right(Parent(Parent(node))); // get the uncle
-    
+
         // case 1: node's uncle is RED
         if (_Color(uncle) == RED) {
           node->parent_->color_ = BLACK;
@@ -736,12 +745,11 @@ private:
         // case 2 & 3: node's uncle is BLACK
         else {
           // node is right child
-        
           if (node == Right(Parent(node))) {
             node = Parent(node);
             LeftRotate(root, node);
           }
-          
+
           // node is right or left child
           node->parent_->color_ = BLACK;
           node->parent_->parent_->color_ = RED;
@@ -751,7 +759,7 @@ private:
       // right symmetry
       else {
         uncle = Left(Parent(Parent(node)));
-        
+
         if (_Color(uncle) == RED) {
           node->parent_->color_ = BLACK;
           uncle->color_ = BLACK;
@@ -759,12 +767,11 @@ private:
           node = node->parent_->parent_;
         }
         else {
-        
           if (node == Left(Parent(node))) {
             node = Parent(node);
             RightRotate(root, node);
           }
-          
+
           node->parent_->color_ = BLACK;
           node->parent_->parent_->color_ = RED;
           LeftRotate(root, node->parent_->parent_);
@@ -775,7 +782,7 @@ private:
   }
 
   void 
-    _Transplant_satellite_data(pointer & root, pointer &from, pointer &to)
+    _Transplant_satellite_data(pointer &from, pointer &to)
   { // swaps the links of the to nodes from and to
     pointer left = Left(from), right = Right(from), parent = Parent(from);
     Color c = _Color(from);
@@ -846,7 +853,7 @@ private:
 
     if (toDelete != node)  // if toDelete has atmost one child
     { // link the toDelete here
-      _Transplant_satellite_data(root, toDelete, node);
+      _Transplant_satellite_data(toDelete, node);
       std::swap(toDelete, node);
     }
 
@@ -875,10 +882,8 @@ private:
   { // it fixes the RB properties if changed due to deletion
     pointer sibling = nullptr;
     while (node != root && _Color(node) == BLACK) {
-      
       if (node == Left(Parent(node))) {
         sibling = Right(Parent(node));
-      
         // case 1: node's sibling is RED
         if (_Color(sibling) == RED) {
           sibling->color_ = BLACK;
@@ -886,7 +891,7 @@ private:
           LeftRotate(root, Parent(node));
           sibling = Right(Parent(node));
         } // now case 1 will be reduced to case 2, 3, or 4
-       
+
         // case 2: node's sibling is BLACK,
         // both of sibling's children are BLACK,
         if (_Color(Left(sibling)) == BLACK &&
@@ -895,7 +900,6 @@ private:
           node = node->parent_;
         }
         else {
-        
           // case3 : sibling is BLACK, 
           // sibling's left child is RED, 
           // sibling's right child is BLACK
@@ -905,7 +909,7 @@ private:
             RightRotate(root, sibling);
             sibling = Right(Parent(node));
           }
-          
+
           // case 4 : sibling is BLACK, 
           // sibling's right child is RED
           sibling->color_ = _Color(Parent(node));
@@ -919,7 +923,7 @@ private:
       { // case 5, 6, 7, and 8 are symmetrically 
         // opposite to case 1, 2, 3 and 4 resp.
         sibling = Left(Parent(node));
-        
+
         // case 5
         if (_Color(sibling) == RED) {
           sibling->color_ = BLACK;
@@ -927,7 +931,7 @@ private:
           RightRotate(root, Parent(node));
           sibling = Left(Parent(node));
         }
-        
+
         // case 6
         if (_Color(Right(sibling)) == BLACK
           && _Color(Left(sibling)) == BLACK) {
@@ -935,7 +939,7 @@ private:
           node = node->parent_;
         }
         else {
-        
+
           // case 7
           if (_Color(Left(sibling)) == BLACK) {
             sibling->right_->color_ = BLACK;
@@ -943,7 +947,7 @@ private:
             LeftRotate(root, sibling);
             sibling = Left(Parent(node));
           }
-          
+
           // case 8
           sibling->color_ = _Color(Parent(node));
           node->parent_->color_ = BLACK;
@@ -953,7 +957,7 @@ private:
         }
       }
     }
-    
+
     if (!IsNil(node))
       node->color_ = BLACK;
   }
